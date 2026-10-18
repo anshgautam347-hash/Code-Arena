@@ -1,0 +1,30 @@
+{% extends "competitions/base.html" %}
+{% load static %}
+
+{% block content %}
+  <section class="hero" aria-labelledby="hero-title">
+    <img class="hero-art" src="{% static 'competitions/arena.jpg' %}" width="1536" height="1024" alt="Glass code shield illuminated by green circuits" fetchpriority="high" />
+    <div class="container hero-content">
+      <div class="eyebrow"><span class="status-dot"></span> A NEW ARENA FOR SECURE CODING</div>
+      <h1 id="hero-title">SecureCode Arena<span class="hero-tagline">Code with purpose.<br><span>Defend by design.</span></span></h1>
+      <p class="hero-description">The next generation of coding competitions.<br class="desktop-break"> Take on real-world vulnerabilities and turn your<br class="desktop-break"> problem-solving skills into stronger, safer code.</p>
+      <div class="hero-actions"><a class="arena-button primary-button" href="#competitions">View competitions <span aria-hidden="true">→</span></a><a class="arena-button secondary-button" href="#principles">Meet the arena <span aria-hidden="true">↗</span></a></div>
+      <div class="hero-meta"><span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.5"/></svg> Real-world challenges</span><span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.5"/></svg> Security-first thinking</span></div>
+    </div>
+    <div class="hero-bottom container"><span class="mono">THINK LIKE A DEVELOPER. DEFEND LIKE A SECURITY ENGINEER.</span><a href="#competitions" aria-label="Scroll to competitions">↓</a></div>
+  </section>
+  <section class="competitions-section container" id="competitions" aria-labelledby="competitions-title">
+    <div class="section-heading"><div><div class="eyebrow section-eyebrow">YOUR NEXT CHALLENGE</div><h2 id="competitions-title">Enter the arena.</h2><p>Small vulnerabilities. Big lessons. Explore what’s ahead.</p></div><span class="example-label"><span class="status-dot"></span> Latest competitions</span></div>
+    {% if competitions %}
+    <div class="competition-grid">
+      {% for c in competitions %}
+      <article class="competition-card {{ c.theme }}-card"><div class="card-top"><div class="challenge-icon">{% if c.theme == "green" %}<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><ellipse cx="16" cy="8" rx="9" ry="4" stroke="currentColor" stroke-width="1.5"/><path d="M7 8v8c0 2.2 4 4 9 4s9-1.8 9-4V8M7 16v8c0 2.2 4 4 9 4s9-1.8 9-4v-8" stroke="currentColor" stroke-width="1.5"/></svg>{% elif c.theme == "amber" %}<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="7" y="14" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M11 14V9a5 5 0 0 1 10 0v5m-5 6v3" stroke="currentColor" stroke-width="1.5"/></svg>{% else %}<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="m11 8-8 8 8 8m10-16 8 8-8 8m-3-19-4 22" stroke="currentColor" stroke-width="1.5"/></svg>{% endif %}</div><span class="difficulty">{{ c.get_status_display }}</span></div><div class="card-category mono">STARTS {{ c.start_time|date:"j M Y"|upper }}</div><h3><a href="{{ c.get_absolute_url }}">{{ c.title }}</a></h3><p>{{ c.description|truncatewords:20 }}</p><div class="tags"><span>{{ c.question_count }} question{{ c.question_count|pluralize }}</span><span>{{ c.total_marks }} mark{{ c.total_marks|pluralize }}</span><span>{{ c.duration_display }}</span></div><details class="challenge-details"><summary>Explore challenge <span aria-hidden="true">↗</span></summary><div class="challenge-description"><strong>Questions</strong>{% if c.preview_questions %}<ul>{% for q in c.preview_questions %}<li>{{ q.title }}</li>{% endfor %}{% if c.more_questions %}<li>and {{ c.more_questions }} more</li>{% endif %}</ul>{% else %}<p>No questions have been added yet.</p>{% endif %}<p>Ends {{ c.end_time|date:"j M Y, g:i A" }}. <a class="details-link" href="{{ c.get_absolute_url }}">View full details <span aria-hidden="true">↗</span></a></p></div></details></article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><strong>No competitions yet.</strong><p>Competitions appear here once an administrator publishes them. Check back soon.</p>{% if user.is_staff %}<p><a class="details-link" href="{% url 'admin:competitions_competition_add' %}">Add a competition in the admin <span aria-hidden="true">↗</span></a></p>{% endif %}</div>
+    {% endif %}
+    <div class="section-note"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7" stroke="currentColor"/><path d="M10 9v5m0-9v1" stroke="currentColor"/></svg> Competitions are published by administrators. Joining and submitting code will arrive in a later stage.</div>
+  </section>
+  <section class="principles-section" id="principles" aria-labelledby="principles-title"><div class="container"><div class="principles-heading"><div class="eyebrow section-eyebrow">MORE THAN SOLVING PROBLEMS</div><h2 id="principles-title">Better code. A safer digital world.</h2></div><div class="principles-grid"><div><span class="principle-number mono">01 /</span><h3>Build a security mindset</h3><p>Look beyond whether code works. Ask how it could break, and who could break it.</p></div><div><span class="principle-number mono">02 /</span><h3>Learn from real scenarios</h3><p>Explore the vulnerabilities that matter, grounded in everyday development.</p></div><div><span class="principle-number mono">03 /</span><h3>Rise to the challenge</h3><p>Bring your curiosity. Sharpen your craft. Make every line of code count.</p></div></div></div></section>
+{% endblock %}

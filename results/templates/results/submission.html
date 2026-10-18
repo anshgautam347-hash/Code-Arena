@@ -1,0 +1,39 @@
+{% extends "competitions/base.html" %}
+{% block title %}Submission {{ submission.pk }} — SecureCode Arena{% endblock %}
+{% block content %}
+<article class="container detail results">
+  <a class="back-link mono" href="{% url 'results:mine' competition.slug %}">← YOUR RESULTS</a>
+  <header class="detail-header">
+    <div class="eyebrow"><span class="status-dot"></span> SUBMISSION #{{ submission.pk }}</div>
+    <h1 class="detail-title">{{ submission.question.title }}</h1>
+    <dl class="facts">
+      <div><dt class="mono">TYPE</dt><dd>{% if submission.kind == "submit" %}Submission (scored){% else %}Run (public tests){% endif %}</dd></div>
+      <div><dt class="mono">LANGUAGE</dt><dd>{{ submission.language.name }}</dd></div>
+      <div><dt class="mono">SENT</dt><dd>{{ submission.created_at|date:"j M Y, g:i:s A" }}</dd></div>
+      <div><dt class="mono">OUTCOME</dt><dd>{% if submission.verdict %}{{ submission.get_verdict_display }}{% else %}{{ submission.get_status_display }}{% endif %}</dd></div>
+      {% if submission.status == "completed" %}<div><dt class="mono">TESTS PASSED</dt><dd>{{ submission.passed_count }}/{{ submission.total_count }}</dd></div>{% endif %}
+      {% if published and submission.kind == "submit" and submission.score is not None %}<div><dt class="mono">SCORE</dt><dd>{{ submission.score|floatformat:2 }}</dd></div>{% endif %}
+    </dl>
+  </header>
+  {% if submission.message %}<div class="notice notice-block" role="status"><p>{{ submission.message }}</p></div>{% endif %}
+  {% if submission.compile_output %}<section class="detail-section"><h2>Compiler output</h2><pre class="code-block">{{ submission.compile_output }}</pre></section>{% endif %}
+  <section class="detail-section"><h2>Your code</h2><pre class="code-block">{{ submission.source_code }}</pre></section>
+  {% if payload.cases %}
+  <section class="detail-section">
+    <h2>Test results</h2>
+    <p class="detail-note">Private test cases show only whether they passed. Their input and expected output are never shown.</p>
+    <ul class="case-list">
+    {% for c in payload.cases %}
+      <li class="case case-{{ c.status }}">
+        {% if c.public %}
+        <details><summary><span>Test {{ c.index }} (public)</span><span class="verdict verdict-{{ c.status }}">{{ c.status_label }}</span></summary>
+          <div class="case-body"><strong>Input</strong><pre>{{ c.input }}</pre><strong>Expected output</strong><pre>{{ c.expected }}</pre><strong>Your output</strong><pre>{{ c.output }}</pre>{% if c.error %}<strong>Error output</strong><pre>{{ c.error }}</pre>{% endif %}</div>
+        </details>
+        {% else %}<div class="case-row"><span>Test {{ c.index }} (private)</span><span class="verdict verdict-{{ c.status }}">{{ c.status_label }}</span></div>{% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

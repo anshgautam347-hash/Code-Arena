@@ -1,0 +1,89 @@
+{% extends "competitions/base.html" %}
+
+{% block title %}{{ competition.title }} — SecureCode Arena{% endblock %}
+
+{% block meta %}<meta name="description" content="{{ competition.description|truncatewords:25 }}">
+  <meta property="og:title" content="{{ competition.title }} — SecureCode Arena">
+  <meta property="og:description" content="{{ competition.description|truncatewords:25 }}">
+  <meta property="og:type" content="website">{% endblock %}
+
+{% block content %}
+<article class="container detail">
+  <a class="back-link mono" href="{% url 'competitions:home' %}#competitions">← ALL COMPETITIONS</a>
+
+  <header class="detail-header">
+    <div class="eyebrow"><span class="status-dot"></span> {{ competition.get_status_display|upper }}{% if competition.is_draft %} / DRAFT PREVIEW, VISIBLE TO STAFF ONLY{% endif %}</div>
+    <h1 class="detail-title">{{ competition.title }}</h1>
+
+    <dl class="facts">
+      <div><dt class="mono">STARTS</dt><dd>{{ competition.start_time|date:"j M Y, g:i A" }}</dd></div>
+      <div><dt class="mono">ENDS</dt><dd>{{ competition.end_time|date:"j M Y, g:i A" }}</dd></div>
+      <div><dt class="mono">LENGTH</dt><dd>{{ competition.duration_display }}</dd></div>
+      <div><dt class="mono">QUESTIONS</dt><dd>{{ questions|length }}</dd></div>
+      <div><dt class="mono">TOTAL MARKS</dt><dd>{{ total_marks }}</dd></div>
+    </dl>
+
+    {% if competition.results_published_at %}
+    <div class="detail-actions"><a class="arena-button secondary-button" href="{% url 'results:leaderboard' competition.slug %}">View leaderboard <span aria-hidden="true">→</span></a></div>
+    {% endif %}
+
+    {% if competition.status == "ongoing" %}
+    <div class="detail-actions"><a class="arena-button primary-button" href="{% url 'exams:start' competition.slug %}">Enter exam <span aria-hidden="true">→</span></a></div>
+    {% endif %}
+  </header>
+
+  <section class="detail-section" aria-labelledby="about-title">
+    <h2 id="about-title">About this competition</h2>
+    <div class="detail-prose">{{ competition.description|linebreaks }}</div>
+  </section>
+
+  {% if competition.rules %}
+  <section class="detail-section" aria-labelledby="rules-title">
+    <h2 id="rules-title">Rules</h2>
+    <div class="detail-prose">{{ competition.rules|linebreaks }}</div>
+  </section>
+  {% endif %}
+
+  <section class="detail-section" aria-labelledby="questions-title">
+    <h2 id="questions-title">Coding questions</h2>
+
+    {% if not questions %}
+      <p class="detail-note">No questions have been added yet.</p>
+    {% else %}
+      {% if not show_question_details %}
+        <p class="detail-note">Full problem statements are shown after the competition ends.</p>
+      {% endif %}
+
+      <ul class="question-list">
+        {% for q in questions %}
+        <li class="question question-{{ q.difficulty }}">
+          {% if show_question_details %}
+          <details class="challenge-details">
+            <summary>
+              <span class="question-title">{{ q.title }}</span>
+              <span class="question-meta"><span class="difficulty">{{ q.get_difficulty_display }}</span><span class="question-marks">{{ q.marks }} mark{{ q.marks|pluralize }}</span><span aria-hidden="true">↗</span></span>
+            </summary>
+            <div class="challenge-description question-body">
+              <strong>Problem</strong>{{ q.problem_statement|linebreaks }}
+              <strong>Input format</strong>{{ q.input_format|linebreaks }}
+              <strong>Output format</strong>{{ q.output_format|linebreaks }}
+              <strong>Constraints</strong>{{ q.constraints|linebreaks }}
+              <div class="samples">
+                <div><strong>Sample input</strong><pre>{{ q.sample_input }}</pre></div>
+                <div><strong>Sample output</strong><pre>{{ q.sample_output }}</pre></div>
+              </div>
+            </div>
+          </details>
+          {% else %}
+          <div class="question-row">
+            <span class="question-title">{{ q.title }}</span>
+            <span class="question-meta"><span class="difficulty">{{ q.get_difficulty_display }}</span><span class="question-marks">{{ q.marks }} mark{{ q.marks|pluralize }}</span></span>
+          </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+</article>
+{% endblock %}

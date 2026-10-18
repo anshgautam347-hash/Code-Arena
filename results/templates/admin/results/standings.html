@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Home</a> &rsaquo; <a href="{% url 'admin:competitions_competition_changelist' %}">Competitions</a> &rsaquo; Standings</div>{% endblock %}
+{% block content %}
+<div id="content-main">
+  <p>
+    Results are
+    <strong>{% if competition.results_published_at %}published ({{ competition.results_published_at|date:"j M Y, g:i A" }}){% else %}not published{% endif %}</strong>.
+    {% if can_change %}
+    <form method="post" style="display:inline">{% csrf_token %}
+      {% if competition.results_published_at %}<button class="button" name="action" value="unpublish">Unpublish results</button>{% else %}<button class="default" name="action" value="publish">Publish results</button>{% endif %}
+    </form>
+    {% endif %}
+    <a class="button" href="?format=csv">Download CSV</a>
+  </p>
+  <p class="help">Ranking: higher total, then less time to the final score, then fewer scored submissions; equal on all three share a rank. Violation indicators are shown for your review only and do not affect rank. Participants marked excluded are hidden from the public leaderboard (set this on the exam session).</p>
+  <div class="module">
+    <table style="width:100%">
+      <thead><tr>
+        <th>Rank</th><th>Participant</th><th>Exam status</th>
+        {% for q in questions %}<th title="{{ q.title }}">Q{{ forloop.counter }}</th>{% endfor %}
+        <th>Total</th><th>Time to final</th><th>Submissions</th><th>Violation indicators</th><th>Review</th><th>Excluded</th><th></th>
+      </tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>{{ r.rank|default:"-" }}</td><td>{{ r.username }}<br><small>{{ r.email }}</small></td><td>{{ r.status }}</td>
+          {% for score in r.score_list %}<td>{{ score|floatformat:2 }}</td>{% endfor %}
+          <td><strong>{{ r.total|floatformat:2 }}</strong></td><td>{{ r.finish_display }}</td><td>{{ r.attempts }}</td>
+          <td>{{ r.violations }}</td><td>{{ r.review_status }}</td><td>{% if r.excluded %}yes{% else %}no{% endif %}</td>
+          <td><a href="{% url 'admin:exams_examsession_change' r.session.pk %}">Session</a></td>
+        </tr>
+      {% empty %}<tr><td colspan="{{ questions|length|add:9 }}">Nobody has begun this exam.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

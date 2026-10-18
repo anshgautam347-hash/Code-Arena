@@ -1,0 +1,18 @@
+{% extends "competitions/base.html" %}
+{% block title %}Sign in — SecureCode Arena{% endblock %}
+{% block content %}
+<section class="container auth">
+  <div class="auth-card">
+    <div class="eyebrow"><span class="status-dot"></span> PARTICIPANT ACCESS</div>
+    <h1 class="auth-title">Sign in</h1>
+    <p class="auth-lead">Sign in to take part in a competition.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% include "exams/_form.html" %}
+      <button type="submit" class="arena-button primary-button auth-submit">Sign in <span aria-hidden="true">→</span></button>
+    </form>
+    <p class="auth-alt">New here? <a href="{% url 'exams:register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}

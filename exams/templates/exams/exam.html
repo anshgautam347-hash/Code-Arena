@@ -1,0 +1,71 @@
+{% extends "competitions/base.html" %}
+{% block title %}{{ competition.title }} — Exam — SecureCode Arena{% endblock %}
+{% block body_class %}exam-body{% endblock %}
+{% block site_header %}{% endblock %}
+{% block site_footer %}{% endblock %}
+
+{% block content %}
+<noscript><div class="exam-gate exam-gate-static"><div class="gate-card"><h1>JavaScript is required</h1><p>The exam environment needs JavaScript. Please enable it and reload this page.</p></div></div></noscript>
+
+<div class="exam-shell" id="exam-shell">
+  <header class="exam-bar">
+    <div class="exam-bar-left">
+      <span class="exam-brand">SecureCode<span>Arena</span></span>
+      <span class="exam-title" title="{{ competition.title }}">{{ competition.title }}</span>
+    </div>
+    <div class="exam-bar-right">
+      <span class="exam-warnings mono" id="exam-warnings" hidden></span>
+      <span class="exam-timer mono" id="exam-timer" role="timer" aria-label="Time remaining">--:--</span>
+      <button type="button" class="arena-button primary-button exam-submit" id="exam-submit" disabled>Submit exam</button>
+    </div>
+  </header>
+
+  <div class="exam-banner" id="exam-banner" role="alert" hidden></div>
+
+  <div class="exam-layout" id="exam-layout" hidden>
+    <aside class="exam-nav" aria-label="Questions"><ol id="exam-question-list"></ol></aside>
+    <section class="exam-problem" id="exam-problem" aria-live="polite"></section>
+    <section class="exam-editor" aria-label="Code editor">
+      <div class="editor-head">
+        <label class="mono" for="exam-language">LANGUAGE</label>
+        <select id="exam-language" class="lang-select" disabled><option>Loading...</option></select>
+        <span class="mono editor-save" id="save-status">Not saved yet</span>
+      </div>
+      <div class="runner-note" id="runner-note" role="status" hidden></div>
+      <div class="editor-box">
+        <label class="visually-hidden" for="exam-code">Solution code</label>
+        <textarea id="exam-code" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div class="editor-actions">
+        <button type="button" class="arena-button secondary-button" id="btn-run" disabled>Run public tests</button>
+        <button type="button" class="arena-button primary-button" id="btn-submit-solution" disabled>Submit solution</button>
+        <span class="editor-hint" id="editor-hint">Run is practice. Only “Submit solution” is scored.</span>
+      </div>
+      <div class="exam-results" id="exam-results" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <div class="exam-gate" id="exam-gate">
+    <div class="gate-card">
+      <div class="eyebrow"><span class="status-dot"></span> EXAM ENVIRONMENT</div>
+      <h1 id="gate-title">Enter fullscreen to begin</h1>
+      <p id="gate-text"></p>
+      <button type="button" class="arena-button primary-button" id="gate-button">Enter fullscreen</button>
+      <p class="gate-error" id="gate-error" role="alert" hidden></p>
+      <p class="gate-small">Browser events such as leaving fullscreen or switching tabs are recorded for review.</p>
+    </div>
+  </div>
+</div>
+
+{{ config|json_script:"exam-config" }}
+{% load static %}
+<link rel="stylesheet" href="{% static 'judging/vendor/codemirror/codemirror.css' %}">
+<script src="{% static 'judging/vendor/codemirror/codemirror.js' %}"></script>
+<script src="{% static 'judging/vendor/codemirror/mode/python.js' %}"></script>
+<script src="{% static 'judging/vendor/codemirror/mode/javascript.js' %}"></script>
+<script src="{% static 'judging/vendor/codemirror/mode/clike.js' %}"></script>
+<script src="{% static 'judging/vendor/codemirror/addon/matchbrackets.js' %}"></script>
+<script src="{% static 'judging/vendor/codemirror/addon/closebrackets.js' %}"></script>
+<script src="{% static 'judging/vendor/codemirror/addon/active-line.js' %}"></script>
+<script src="{% static 'exams/exam.js' %}" defer></script>
+{% endblock %}

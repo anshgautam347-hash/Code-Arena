@@ -1,0 +1,2 @@
+# Python 3.14 support starts at Django 5.2.8; keep updates within 5.2 LTS.
+Django>=5.2.8,<5.3

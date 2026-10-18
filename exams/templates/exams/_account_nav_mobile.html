@@ -1,0 +1,1 @@
+{% if user.is_authenticated %}<span class="account-name mono">Signed in as {{ user.get_username }}</span><form method="post" action="{% url 'exams:logout' %}">{% csrf_token %}<button type="submit" class="linklike">Log out</button></form>{% else %}<a href="{% url 'exams:login' %}">Sign in</a><a href="{% url 'exams:register' %}">Register</a>{% endif %}

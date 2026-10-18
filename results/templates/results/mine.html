@@ -1,0 +1,78 @@
+{% extends "competitions/base.html" %}
+{% block title %}Your results: {{ competition.title }} — SecureCode Arena{% endblock %}
+{% block content %}
+<article class="container detail results">
+  <a class="back-link mono" href="{{ competition.get_absolute_url }}">← {{ competition.title|upper }}</a>
+
+  <header class="detail-header">
+    <div class="eyebrow"><span class="status-dot"></span> YOUR RESULTS</div>
+    <h1 class="detail-title">{{ competition.title }}</h1>
+    <dl class="facts">
+      <div><dt class="mono">EXAM STATUS</dt><dd>{{ session.get_status_display }}</dd></div>
+      {% if published and row and not row.excluded %}
+        <div><dt class="mono">TOTAL SCORE</dt><dd>{{ row.total|floatformat:2 }}</dd></div>
+        <div><dt class="mono">RANK</dt><dd>{{ row.rank }} of {{ participants }}</dd></div>
+        <div><dt class="mono">TIME TO FINAL SCORE</dt><dd>{{ row.finish_display }}</dd></div>
+      {% elif published and row and row.excluded %}
+        <div><dt class="mono">TOTAL SCORE</dt><dd>{{ row.total|floatformat:2 }}</dd></div>
+        <div><dt class="mono">LEADERBOARD</dt><dd>Not listed</dd></div>
+      {% else %}
+        <div><dt class="mono">SCORES</dt><dd>Not published yet</dd></div>
+      {% endif %}
+      <div><dt class="mono">SCORED SUBMISSIONS</dt><dd>{{ row.attempts|default:0 }}</dd></div>
+    </dl>
+  </header>
+
+  {% if pending %}<div class="notice" role="status"><strong>Some submissions are still being evaluated.</strong><p>Reload this page in a moment to see their results.</p></div>{% endif %}
+  {% if not published %}<p class="detail-note">The organizers have not published the results yet. Your scores and rank appear here once they do. The verdict and test counts for each submission are shown below.</p>{% endif %}
+  {% if published and row and row.excluded %}<p class="detail-note">Your result is not shown on the public leaderboard. Contact the organizers if you have questions.</p>{% endif %}
+
+  <section class="detail-section" aria-labelledby="q-title">
+    <h2 id="q-title">Question scores</h2>
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead><tr><th>Question</th><th>Marks</th><th>Best result</th><th>Scored submissions</th>{% if published %}<th>Score</th>{% endif %}</tr></thead>
+        <tbody>
+        {% for item in question_rows %}
+          <tr>
+            <td>{{ item.question.title }}</td>
+            <td>{{ item.question.marks }}</td>
+            <td>{% if item.best %}<a href="{% url 'results:submission' competition.slug item.best.submission_id %}">{{ item.best.verdict }} ({{ item.best.passed }}/{{ item.best.total }} tests)</a>{% else %}<span class="muted">No scored submission</span>{% endif %}</td>
+            <td>{{ item.attempts }}</td>
+            {% if published %}<td class="num">{{ item.score|floatformat:2 }}</td>{% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="detail-note">Your score for a question is your best scored submission. Only solutions sent with “Submit solution” are scored; “Run” is practice.</p>
+  </section>
+
+  <section class="detail-section" aria-labelledby="h-title">
+    <h2 id="h-title">Submission history</h2>
+    {% if submissions %}
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead><tr><th>#</th><th>Time</th><th>Question</th><th>Language</th><th>Type</th><th>Outcome</th><th>Tests</th>{% if published %}<th>Score</th>{% endif %}</tr></thead>
+        <tbody>
+        {% for s in submissions %}
+          <tr>
+            <td><a href="{% url 'results:submission' competition.slug s.pk %}">{{ s.pk }}</a></td>
+            <td>{{ s.created_at|date:"j M, g:i:s A" }}</td>
+            <td>{{ s.question.title }}</td>
+            <td>{{ s.language.name }}</td>
+            <td>{% if s.kind == "submit" %}Submit{% else %}Run{% endif %}</td>
+            <td><span class="verdict verdict-{{ s.verdict|default:s.status }}">{% if s.verdict %}{{ s.get_verdict_display }}{% else %}{{ s.get_status_display }}{% endif %}</span></td>
+            <td>{% if s.status == "completed" %}{{ s.passed_count }}/{{ s.total_count }}{% else %}-{% endif %}</td>
+            {% if published %}<td class="num">{% if s.kind == "submit" and s.score is not None %}{{ s.score|floatformat:2 }}{% else %}-{% endif %}</td>{% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<p class="detail-note">You made no submissions.</p>{% endif %}
+  </section>
+
+  {% if published %}<p><a class="arena-button secondary-button" href="{% url 'results:leaderboard' competition.slug %}">View leaderboard <span aria-hidden="true">→</span></a></p>{% endif %}
+</article>
+{% endblock %}

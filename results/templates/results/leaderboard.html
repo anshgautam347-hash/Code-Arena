@@ -1,0 +1,46 @@
+{% extends "competitions/base.html" %}
+{% block title %}Leaderboard: {{ competition.title }} — SecureCode Arena{% endblock %}
+{% block content %}
+<article class="container detail results leaderboard">
+  <a class="back-link mono" href="{{ competition.get_absolute_url }}">← {{ competition.title|upper }}</a>
+  <header class="detail-header">
+    <div class="eyebrow"><span class="status-dot"></span> LEADERBOARD</div>
+    <h1 class="detail-title">{{ competition.title }}</h1>
+  </header>
+
+  {% if not published and not preview %}
+    <div class="notice"><strong>Results have not been published yet.</strong><p>The leaderboard appears here once the organizers publish the results.</p></div>
+  {% else %}
+    {% if preview %}<div class="notice notice-block" role="status"><strong>Staff preview.</strong><p>These results are not published. Participants cannot see this page yet.</p></div>{% endif %}
+    {% if rows %}
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead><tr><th>Rank</th><th>Participant</th>{% for q in questions %}<th class="num" title="{{ q.title }}">Q{{ forloop.counter }}</th>{% endfor %}<th class="num">Total</th><th>Time to final score</th><th class="num">Submissions</th></tr></thead>
+        <tbody>
+        {% for r in rows %}
+          <tr{% if r.username == me %} class="me"{% endif %}>
+            <td class="num">{{ r.rank }}</td>
+            <td>{{ r.username }}{% if r.username == me %} <span class="muted">(you)</span>{% endif %}</td>
+            {% for score in r.score_list %}<td class="num">{{ score|floatformat:2 }}</td>{% endfor %}
+            <td class="num"><strong>{{ r.total|floatformat:2 }}</strong></td>
+            <td>{{ r.finish_display }}</td>
+            <td class="num">{{ r.attempts }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <details class="rules-note"><summary class="mono">HOW RANKING WORKS</summary>
+      <ol>
+        <li>Each question counts your best scored submission. Your total is the sum.</li>
+        <li>A higher total ranks first.</li>
+        <li>If totals are equal, less time to reach your final score ranks first (measured from when you began the exam).</li>
+        <li>If still equal, fewer scored submissions ranks first.</li>
+        <li>Participants equal on all three share a rank. Participants with no points share the last rank.</li>
+      </ol>
+      <p class="detail-note">Q1, Q2, … follow the question order of the competition. Browser-event indicators are not used for ranking.</p>
+    </details>
+    {% else %}<p class="detail-note">Nobody has taken part yet.</p>{% endif %}
+  {% endif %}
+</article>
+{% endblock %}

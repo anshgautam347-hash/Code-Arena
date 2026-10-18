@@ -1,0 +1,26 @@
+{% extends "competitions/base.html" %}
+{% block title %}Exam finished — {{ competition.title }}{% endblock %}
+{% block content %}
+<section class="container auth">
+  <div class="auth-card finished-card">
+    <div class="eyebrow"><span class="status-dot"></span> EXAM FINISHED</div>
+    <h1 class="auth-title">{{ competition.title }}</h1>
+    <p class="auth-lead">
+      {% if session.status == "submitted" %}Your exam was submitted.
+      {% elif session.status == "auto_submitted" %}Your exam was submitted automatically because the competition's limit on recorded events was reached.
+      {% elif session.end_reason == "never_started" %}You did not begin this exam before it closed.
+      {% elif session.end_reason == "competition_closed" %}The organizers closed this competition. Your saved answers were kept.
+      {% else %}Your time ran out. Answers you had saved were kept.{% endif %}
+    </p>
+    <dl class="facts finished-facts">
+      <div><dt class="mono">STATUS</dt><dd>{{ session.get_status_display }}</dd></div>
+      <div><dt class="mono">ENDED</dt><dd>{% if session.ended_at %}{{ session.ended_at|date:"j M Y, g:i A" }}{% else %}-{% endif %}</dd></div>
+      <div><dt class="mono">ANSWERS SAVED</dt><dd>{{ answered }} of {{ question_count }}</dd></div>
+      <div><dt class="mono">EVENTS RECORDED</dt><dd>{{ violations_counted }}</dd></div>
+    </dl>
+    <p class="detail-note">Only solutions sent with “Submit solution” are scored. Recorded events are indicators the organizers may review; they are not a finding of misconduct.</p>
+    <a class="arena-button primary-button auth-submit" href="{% url 'results:mine' competition.slug %}">View your results <span aria-hidden="true">→</span></a>
+    <a class="arena-button secondary-button auth-submit" href="{% url 'competitions:home' %}#competitions">Back to competitions</a>
+  </div>
+</section>
+{% endblock %}

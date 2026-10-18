@@ -1,0 +1,71 @@
+{% extends "competitions/base.html" %}
+{% block title %}Exam check-in: {{ competition.title }} — SecureCode Arena{% endblock %}
+{% block content %}
+<article class="container detail checkin">
+  <a class="back-link mono" href="{{ competition.get_absolute_url }}">← BACK TO COMPETITION</a>
+
+  <header class="detail-header">
+    <div class="eyebrow"><span class="status-dot"></span> EXAM CHECK-IN</div>
+    <h1 class="detail-title">{{ competition.title }}</h1>
+    <dl class="facts">
+      <div><dt class="mono">OPENS</dt><dd>{{ competition.start_time|date:"j M Y, g:i A" }}</dd></div>
+      <div><dt class="mono">CLOSES</dt><dd>{{ competition.end_time|date:"j M Y, g:i A" }}</dd></div>
+      <div><dt class="mono">YOUR TIME</dt><dd>{% if competition.duration_minutes %}{{ competition.duration_minutes }} min after you begin{% else %}Until the closing time{% endif %}</dd></div>
+      <div><dt class="mono">QUESTIONS</dt><dd>{{ question_count }}</dd></div>
+      <div><dt class="mono">TOTAL MARKS</dt><dd>{{ total_marks }}</dd></div>
+    </dl>
+  </header>
+
+  {% if not eligibility.ok %}
+  <div class="notice notice-block" role="alert"><strong>You can't start this exam right now.</strong><p>{{ eligibility.message }}</p></div>
+  {% endif %}
+
+  <section class="detail-section" aria-labelledby="notice-title">
+    <h2 id="notice-title">Monitoring notice</h2>
+    <p class="detail-note">Please read this before you start. You must accept it to take the exam.</p>
+    <div class="notice-grid">
+      <div class="notice-card">
+        <h3>What is monitored</h3>
+        <ul>
+          <li>When this tab or window is hidden or loses focus.</li>
+          <li>When you leave fullscreen mode.</li>
+          <li>Attempts to reload, close or navigate away from the exam page.</li>
+          <li>Periods when your browser stops contacting the server.</li>
+          <li>The answers you type in the editor, saved automatically, with the time of each save.</li>
+        </ul>
+        <p class="notice-small">Each event is stamped with the server's clock.</p>
+      </div>
+      <div class="notice-card">
+        <h3>What is not monitored</h3>
+        <ul>
+          <li>No camera or microphone.</li>
+          <li>No screen recording or screenshots.</li>
+          <li>No keystrokes outside this page.</li>
+          <li>No content from other tabs or applications, and no browsing history.</li>
+        </ul>
+      </div>
+      <div class="notice-card">
+        <h3>Please understand</h3>
+        <ul>
+          <li>This website cannot stop you from switching windows or using other programs. It can only detect some of those events.</li>
+          <li>Recorded events are indicators for human review. They are not proof that anyone cheated.</li>
+          <li>You get one attempt. The timer is kept by the server and starts when you enter fullscreen and begin.</li>
+          <li>You need a desktop browser that supports fullscreen.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="detail-prose policy-line">
+      You will see a warning each time an event is recorded.
+      {% if competition.max_violations %}This competition submits your exam automatically after <strong>{{ competition.max_violations }}</strong> recorded events.{% else %}This competition does not submit automatically; events are kept for the organizers to review.{% endif %}
+    </p>
+  </section>
+
+  <form method="post" class="checkin-form" novalidate>
+    {% csrf_token %}
+    {% if form.accept.errors %}{% for error in form.accept.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}{% endif %}
+    <label class="check-row"><input type="checkbox" name="accept" value="on"{% if not eligibility.ok %} disabled{% endif %}> <span>{{ form.accept.label }}</span></label>
+    <button type="submit" class="arena-button primary-button"{% if not eligibility.ok %} disabled{% endif %}>Continue to exam <span aria-hidden="true">→</span></button>
+    <p class="detail-note">You will enter fullscreen on the next page. Your timer does not start until you do.</p>
+  </form>
+</article>
+{% endblock %}
